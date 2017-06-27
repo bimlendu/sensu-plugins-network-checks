@@ -35,6 +35,11 @@ class MetricsSockstat < Sensu::Plugin::Metric::CLI::Graphite
          short: '-s SCHEME',
          default: 'network.sockets'
 
+  option :proc_path,
+         long: '--proc-path /proc',
+         proc: proc(&:to_s),
+         default: '/proc'
+
   def output_metric(name, value)
     output "#{@config[:scheme]}.#{name} #{value} #{@timestamp}"
   end
@@ -53,9 +58,9 @@ class MetricsSockstat < Sensu::Plugin::Metric::CLI::Graphite
   end
 
   def read_sockstat
-    return IO.read('/proc/net/sockstat')
+    return IO.read("#{config[:proc_path]}/net/sockstat")
   rescue => e
-    unknown "Failed to read /proc/net/sockstat: #{e}"
+    unknown "Failed to read #{config[:proc_path]}/net/sockstat: #{e}"
   end
 
   def run

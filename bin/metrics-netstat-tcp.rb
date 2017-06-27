@@ -82,8 +82,13 @@ class NetstatTCPMetrics < Sensu::Plugin::Metric::CLI::Graphite
          long: '--disabletcp6',
          boolean: true
 
+  option :proc_path,
+         long: '--proc-path /proc',
+         proc: proc(&:to_s),
+         default: '/proc'
+
   def netstat(protocol, pattern, state_counts)
-    File.open('/proc/net/' + protocol).each do |line|
+    File.open("#{config[:proc_path]}/net/" + protocol).each do |line|
       line.strip!
       if m = line.match(pattern) # rubocop:disable AssignmentInCondition
         connection_state = m[5]

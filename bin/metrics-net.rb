@@ -71,10 +71,15 @@ class LinuxPacketMetrics < Sensu::Plugin::Metric::CLI::Graphite
          long: '--include-device',
          proc: proc { |a| a.split(',') }
 
+  option :sys_path,
+         long: '--sys-path /sys',
+         proc: proc(&:to_s),
+         default: '/sys'
+
   def run
     timestamp = Time.now.to_i
 
-    Dir.glob('/sys/class/net/*').each do |iface_path|
+    Dir.glob("#{config[:sys_path]}/class/net/*").each do |iface_path|
       next if File.file?(iface_path)
       iface = File.basename(iface_path)
       next if iface == 'lo'

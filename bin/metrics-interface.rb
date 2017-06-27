@@ -43,6 +43,11 @@ class InterfaceGraphite < Sensu::Plugin::Metric::CLI::Graphite
          long: '--exclude-interface',
          proc: proc { |a| a.split(',') }
 
+  option :proc_path,
+         long: '--proc-path /proc',
+         proc: proc(&:to_s),
+         default: '/proc'
+
   def run
     # Metrics borrowed from hoardd: https://github.com/coredump/hoardd
 
@@ -63,7 +68,7 @@ class InterfaceGraphite < Sensu::Plugin::Metric::CLI::Graphite
                  txCarrier
                  txCompressed)
 
-    File.open('/proc/net/dev', 'r').each_line do |line|
+    File.open("#{config[:proc_path]}/net/dev", 'r').each_line do |line|
       interface, stats_string = line.scan(/^\s*([^:]+):\s*(.*)$/).first
       next if config[:excludeinterface] && config[:excludeinterface].find { |x| line.match(x) }
       next unless interface
